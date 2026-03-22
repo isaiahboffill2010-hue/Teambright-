@@ -197,7 +197,7 @@ export function cumulativeFusion(
 function clamp(op: ComplianceOpinion): ComplianceOpinion {
   const b = Math.max(0, Math.min(1, op.b));
   const d = Math.max(0, Math.min(1, op.d));
-  let u = Math.max(0, Math.min(1, op.u));
+  const u = Math.max(0, Math.min(1, op.u));
   const a = Math.max(0, Math.min(1, op.a));
 
   // Re-normalize if floating-point drift

@@ -1,6 +1,7 @@
 import { Prospect, Template, Campaign, ComplianceSubmission, TaxOpportunity } from '@/types';
+import { IMPORTED_PROSPECTS } from './prospectData';
 
-export const MOCK_PROSPECTS: Prospect[] = [
+const SEED_PROSPECTS: Prospect[] = [
   {
     id: 'p1',
     advisorId: 'a1',
@@ -28,6 +29,16 @@ export const MOCK_PROSPECTS: Prospect[] = [
     },
     tags: ['golf', 'high-net-worth', 'tech-exec'],
     notes: 'Met at Pebble Beach club event. Interested in tax-efficient strategies.',
+    scoring: {
+      icpScore: 91,
+      urgencyScore: 87,
+      icpCategory: 'Tech Executive',
+      summary: 'CFO at Golden State Capital with $4.2M in investable assets and high capital gains exposure heading into year-end.',
+      matchReasons: ['High AUM ($4.2M)', 'Accredited investor in CA', 'Senior finance exec', 'Married filing jointly — tax optimization upside'],
+      whyNowReasons: ['Q4 year-end tax-loss harvesting window closes Dec 31', 'Unrealized losses of ~$180K available to harvest', 'Potential Roth conversion window before 2026 rate change'],
+      potentialConcerns: ['Existing advisor relationship likely', 'High earner — sensitive to promissory language'],
+      outreachAngle: 'Lead with year-end tax-loss harvesting deadline and the specific $180K opportunity. Keep CTA low-commitment — offer a 20-min year-end tax review call.',
+    },
     hasExplicitConsent: true,
     hasOptedOut: false,
     lastContactedAt: '2024-12-01T09:00:00Z',
@@ -61,6 +72,16 @@ export const MOCK_PROSPECTS: Prospect[] = [
     },
     tags: ['vc', 'high-net-worth', 'female-exec'],
     notes: 'Found via LinkedIn. Runs a $85M fund. No prior relationship.',
+    scoring: {
+      icpScore: 88,
+      urgencyScore: 92,
+      icpCategory: 'Venture Capital / Fund Manager',
+      summary: 'Managing Partner at Horizon Ventures running an $85M fund. High capital gains exposure with no retirement accounts — significant tax planning gap.',
+      matchReasons: ['Very high AUM ($8.5M)', 'Institutional investor', 'No retirement accounts — SEP/IRA opportunity', 'Single filer with maximum capital gains exposure'],
+      whyNowReasons: ['Year-end Qualified Opportunity Zone investment window closes Dec 31', '$340K in capital gains eligible for QOZ deferral', 'No existing retirement account structure — urgent gap for $1.2M income earner'],
+      potentialConcerns: ['No prior relationship', 'Likely bombarded by financial advisors', 'No explicit consent — cold outreach compliance risk'],
+      outreachAngle: 'Lead with QOZ investment opportunity specific to her fund\'s capital gains position. Mention the Dec 31 deadline to create urgency without being pushy.',
+    },
     hasExplicitConsent: false,
     hasOptedOut: false,
     lastContactedAt: '2024-11-25T11:30:00Z',
@@ -94,6 +115,16 @@ export const MOCK_PROSPECTS: Prospect[] = [
     },
     tags: ['consulting', 'mid-market'],
     notes: 'Referral from Robert Chen. Looking to consolidate accounts.',
+    scoring: {
+      icpScore: 74,
+      urgencyScore: 68,
+      icpCategory: 'Independent Business Owner',
+      summary: 'Principal at MW Consulting with $1.9M AUM and self-employment income eligible for a $69K SEP-IRA contribution.',
+      matchReasons: ['Accredited investor', 'Self-employed — SEP-IRA eligible', 'Referral from existing client (Robert Chen)', 'Consolidating accounts — high conversion potential'],
+      whyNowReasons: ['SEP-IRA contribution deadline is tax filing date (Apr 2025)', 'Looking to consolidate accounts — active evaluation mode', 'Referral relationship creates warm introduction opportunity'],
+      potentialConcerns: ['Lower AUM relative to other prospects', 'Account consolidation may mean existing advisor'],
+      outreachAngle: 'Warm introduction angle via Robert Chen. Lead with SEP-IRA opportunity and account consolidation simplification. Reference the shared connection.',
+    },
     hasExplicitConsent: true,
     hasOptedOut: false,
     lastContactedAt: '2024-12-05T14:00:00Z',
@@ -126,6 +157,16 @@ export const MOCK_PROSPECTS: Prospect[] = [
     },
     tags: ['medical', 'high-income'],
     notes: 'Imported from Houston medical professionals list.',
+    scoring: {
+      icpScore: 79,
+      urgencyScore: 61,
+      icpCategory: 'Medical Professional',
+      summary: 'Chief of Surgery with $750K income and $2.4M AUM. Estate planning opportunity via annual gift tax exclusion before year-end.',
+      matchReasons: ['High income ($750K)', 'Accredited investor in TX', 'Medical professional — common wealth accumulation profile', 'No existing relationship — high potential'],
+      whyNowReasons: ['Annual gift tax exclusion ($18K/recipient) expires Dec 31', 'Recently imported — early in outreach window', 'TX residency — no state income tax, focus on federal strategies'],
+      potentialConcerns: ['No explicit consent — CSV import source', 'No prior relationship', 'Busy schedule as Chief of Surgery'],
+      outreachAngle: 'Lead with year-end estate planning and gift tax exclusion. Keep brief and respectful of her time. Emphasize TX-specific strategies with no state income tax to add local relevance.',
+    },
     hasExplicitConsent: false,
     hasOptedOut: false,
     createdAt: '2024-12-01T08:00:00Z',
@@ -150,6 +191,16 @@ export const MOCK_PROSPECTS: Prospect[] = [
     },
     tags: ['manufacturing', 'ceo', 'long-term-client'],
     notes: 'Converted client. Managing $4.2M AUM. Review meeting Q1.',
+    scoring: {
+      icpScore: 95,
+      urgencyScore: 45,
+      icpCategory: 'Manufacturing CEO / Existing Client',
+      summary: 'Converted client managing $4.2M AUM. Q1 annual review due — opportunity to deepen relationship and expand wallet share.',
+      matchReasons: ['Existing client — highest conversion certainty', 'CEO-level with $6.1M total AUM', 'Long-term relationship established', 'High confidence enrichment (95%)'],
+      whyNowReasons: ['Q1 2025 annual review meeting due', 'Market rebalancing discussion needed after 2024 movements', 'Potential referral opportunity — satisfied long-term client'],
+      potentialConcerns: ['Lower urgency — already a client', 'Q1 review is standard — not crisis-driven'],
+      outreachAngle: 'Schedule Q1 annual review. Lead with 2024 portfolio performance and 2025 planning themes. Use as opportunity to discuss referrals from his business network.',
+    },
     hasExplicitConsent: true,
     hasOptedOut: false,
     lastContactedAt: '2024-11-30T10:00:00Z',
@@ -157,6 +208,8 @@ export const MOCK_PROSPECTS: Prospect[] = [
     updatedAt: '2024-11-30T10:00:00Z',
   },
 ];
+
+export const MOCK_PROSPECTS: Prospect[] = [...IMPORTED_PROSPECTS, ...SEED_PROSPECTS];
 
 export const MOCK_TEMPLATES: Template[] = [
   {

@@ -109,11 +109,18 @@ export default function ReviewQueuePage() {
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Review Queue</h1>
-        <p className="text-slate-500 text-sm mt-1">
-          {pending.length} submission{pending.length !== 1 ? 's' : ''} awaiting review
-        </p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Review Queue</h1>
+          <p className="text-slate-500 text-sm mt-1">
+            {pending.length} submission{pending.length !== 1 ? 's' : ''} awaiting review
+          </p>
+        </div>
+        <form action="/auth/signout" method="POST">
+          <button type="submit" className="text-xs text-slate-400 hover:text-slate-700 transition-colors">
+            Sign out
+          </button>
+        </form>
       </div>
 
       {pending.length > 0 && (
@@ -172,7 +179,7 @@ export default function ReviewQueuePage() {
                       Reviewed {s.reviewedAt && new Date(s.reviewedAt).toLocaleDateString()}
                     </p>
                     {s.officerNotes && (
-                      <p className="text-xs text-slate-600 mt-1.5 italic">"{s.officerNotes}"</p>
+                      <p className="text-xs text-slate-600 mt-1.5 italic">&ldquo;{s.officerNotes}&rdquo;</p>
                     )}
                   </div>
                 </div>

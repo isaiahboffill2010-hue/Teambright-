@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useComplianceStore } from '@/store/useComplianceStore';
 import { useOutreachStore } from '@/store/useOutreachStore';
 import { useProspectStore } from '@/store/useProspectStore';
@@ -7,7 +7,6 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RiskBadge, Badge } from '@/components/ui/Badge';
 import { ComplianceScoreCard } from '@/components/compliance/ComplianceScoreCard';
-import { ComplianceScore } from '@/types';
 import { scoreContent } from '@/lib/compliance/scorer';
 import Link from 'next/link';
 
@@ -21,6 +20,31 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 const MERGE_FIELDS = ['{{first_name}}', '{{last_name}}', '{{advisor_name}}', '{{firm_name}}', '{{industry}}', '{{firm_address}}', '{{unsubscribe_link}}'];
+
+function buildAutoDraft(firstName: string, jobTitle: string, company: string, whyNowReasons: string[], outreachAngle: string): { subject: string; body: string } {
+  const topSignal = whyNowReasons[0] ?? 'a timely financial opportunity';
+  const subject = `A timely opportunity for ${firstName} — ${topSignal.split(' ').slice(0, 6).join(' ')}`;
+  const body = `Hi ${firstName},
+
+I hope this note finds you well. I'm Alex Johnson, a wealth advisor who works specifically with ${jobTitle.toLowerCase()}s at companies like ${company}.
+
+I'm reaching out because I noticed a timely opportunity that may be relevant to your situation: ${topSignal}.
+
+Based on profiles similar to yours, there are strategies worth exploring — including ${outreachAngle.split('.')[0].toLowerCase()}.
+
+I'd love to share a few specific ideas in a brief 20-minute call — no obligations, just a focused conversation around what might be relevant to you right now.
+
+Past performance is not indicative of future results. Investment strategies involve risk and may lose value. This message is for informational purposes only and does not constitute investment advice.
+
+Best regards,
+{{advisor_name}}
+{{advisor_title}} | {{firm_name}}
+{{firm_address}}
+
+To unsubscribe from future communications, click here: {{unsubscribe_link}}`;
+
+  return { subject, body };
+}
 
 export default function ComposePage() {
   const { prospects } = useProspectStore();
@@ -75,6 +99,20 @@ export default function ComposePage() {
     setComposerBody(composerBody + field);
   };
 
+  // Auto-draft from the first selected prospect's signal data
+  const primaryRecipient = prospects.find((p) => selectedRecipientIds.includes(p.id));
+
+  const handleAutoDraft = useCallback(() => {
+    if (!primaryRecipient?.scoring) return;
+    const { whyNowReasons, outreachAngle } = primaryRecipient.scoring;
+    const firstName = primaryRecipient.firstName;
+    const jobTitle = primaryRecipient.enrichment?.jobTitle ?? 'executive';
+    const company = primaryRecipient.enrichment?.companyName ?? 'your company';
+    const { subject, body } = buildAutoDraft(firstName, jobTitle, company, whyNowReasons, outreachAngle);
+    setComposerSubject(subject);
+    setComposerBody(body);
+  }, [primaryRecipient, setComposerSubject, setComposerBody]);
+
   const handleSend = async () => {
     if (!currentScore || currentScore.autoBlocked) return;
     if (currentScore.requiresReview) {
@@ -82,10 +120,31 @@ export default function ComposePage() {
       return;
     }
     setIsSending(true);
-    await new Promise((r) => setTimeout(r, 1500)); // simulate send
-    setIsSending(false);
-    setSent(true);
+    try {
+      const recipients = prospects
+        .filter((p) => selectedRecipientIds.includes(p.id))
+        .map((p) => ({ email: p.email, firstName: p.firstName, lastName: p.lastName }));
+
+      const res = await fetch('/api/outreach/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject: composerSubject, body: composerBody, recipients }),
+      });
+
+      if (!res.ok) {
+        const { error } = await res.json();
+        alert(`Send failed: ${error}`);
+        return;
+      }
+
+      setSent(true);
+    } finally {
+      setIsSending(false);
+    }
   };
+
+  // Suppress unused variable warning for selectedTemplateId
+  void selectedTemplateId;
 
   if (sent) {
     return (
@@ -158,10 +217,17 @@ export default function ComposePage() {
                     }}
                     className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-xs font-medium text-slate-700 truncate">{p.firstName} {p.lastName}</p>
                     <p className="text-xs text-slate-400 truncate">{p.email}</p>
                   </div>
+                  {p.scoring && (
+                    <span className={`text-xs px-1.5 py-0.5 rounded font-semibold shrink-0 ${
+                      p.scoring.urgencyScore >= 85 ? 'bg-red-100 text-red-700' :
+                      p.scoring.urgencyScore >= 70 ? 'bg-amber-100 text-amber-700' :
+                      'bg-slate-100 text-slate-500'
+                    }`}>{p.scoring.urgencyScore}</span>
+                  )}
                   {p.hasOptedOut && <Badge variant="danger" size="sm">OPT-OUT</Badge>}
                 </label>
               ))}
@@ -170,6 +236,29 @@ export default function ComposePage() {
               <p className="text-xs text-slate-500 mt-2">{selectedRecipientIds.length} selected</p>
             )}
           </Card>
+
+          {/* Auto-Draft Signal Panel */}
+          {primaryRecipient?.scoring && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-amber-800 mb-1">⚡ Signal Detected — {primaryRecipient.firstName} {primaryRecipient.lastName}</p>
+                  <p className="text-xs text-amber-700 mb-2">{primaryRecipient.scoring.whyNowReasons[0]}</p>
+                  <p className="text-xs text-amber-600 italic leading-relaxed">
+                    Angle: {primaryRecipient.scoring.outreachAngle.split('.')[0]}.
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleAutoDraft}
+                  className="shrink-0 border-amber-400 text-amber-800 hover:bg-amber-100"
+                >
+                  Auto-Draft →
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Email composer */}
           <Card>
@@ -206,8 +295,8 @@ export default function ComposePage() {
                 <textarea
                   value={composerBody}
                   onChange={(e) => setComposerBody(e.target.value)}
-                  placeholder="Compose your message..."
-                  rows={12}
+                  placeholder="Compose your message, or select a recipient and click Auto-Draft →"
+                  rows={14}
                   className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono resize-none leading-relaxed"
                 />
               </div>

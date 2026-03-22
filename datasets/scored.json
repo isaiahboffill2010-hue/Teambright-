@@ -1,0 +1,149 @@
+[
+  {
+    "id": "p1",
+    "name": "Robert Chen",
+    "currentRole": "CFO",
+    "company": "Golden State Capital Group",
+    "location": "San Francisco, CA",
+    "linkedinUrl": "https://linkedin.com/in/robertchen",
+    "email": "robert.chen@goldenstate.com",
+    "icpScore": 91,
+    "urgencyScore": 87,
+    "icpCategory": "Tech Executive",
+    "summary": "CFO at Golden State Capital with $4.2M in investable assets and high capital gains exposure heading into year-end.",
+    "matchReasons": [
+      "High AUM ($4.2M)",
+      "Accredited investor in CA",
+      "Senior finance executive",
+      "Married filing jointly — tax optimization upside"
+    ],
+    "whyNowReasons": [
+      "Q4 year-end tax-loss harvesting window closes Dec 31",
+      "Unrealized losses of ~$180K available to harvest",
+      "Potential Roth conversion window before 2026 rate change"
+    ],
+    "potentialConcerns": [
+      "Existing advisor relationship likely",
+      "High earner — sensitive to promissory language"
+    ],
+    "outreachAngle": "Lead with year-end tax-loss harvesting deadline and the specific $180K opportunity. Keep CTA low-commitment — offer a 20-min year-end tax review call."
+  },
+  {
+    "id": "p2",
+    "name": "Sarah Nguyen",
+    "currentRole": "Managing Partner",
+    "company": "Horizon Ventures",
+    "location": "San Francisco, CA",
+    "linkedinUrl": "https://linkedin.com/in/sarahnguyen",
+    "email": "s.nguyen@horizonventures.io",
+    "icpScore": 88,
+    "urgencyScore": 92,
+    "icpCategory": "Venture Capital / Fund Manager",
+    "summary": "Managing Partner at Horizon Ventures running an $85M fund. High capital gains exposure with no retirement accounts — significant tax planning gap.",
+    "matchReasons": [
+      "Very high AUM ($8.5M personal)",
+      "Institutional investor",
+      "No retirement accounts — SEP/IRA opportunity",
+      "Single filer with maximum capital gains exposure"
+    ],
+    "whyNowReasons": [
+      "Year-end Qualified Opportunity Zone investment window closes Dec 31",
+      "$340K in capital gains eligible for QOZ deferral",
+      "No existing retirement account structure — urgent gap for $1.2M income earner"
+    ],
+    "potentialConcerns": [
+      "No prior relationship",
+      "Likely approached by many advisors",
+      "No explicit consent — cold outreach compliance risk"
+    ],
+    "outreachAngle": "Lead with QOZ investment opportunity specific to her fund's capital gains position. Mention the Dec 31 deadline to create urgency without being pushy."
+  },
+  {
+    "id": "p3",
+    "name": "Marcus Williams",
+    "currentRole": "Principal",
+    "company": "MW Consulting LLC",
+    "location": "Chicago, IL",
+    "linkedinUrl": "https://linkedin.com/in/marcuswilliams",
+    "email": "marcus@mwilliamsconsulting.com",
+    "icpScore": 74,
+    "urgencyScore": 68,
+    "icpCategory": "Independent Business Owner",
+    "summary": "Principal at MW Consulting with $1.9M AUM and self-employment income eligible for a $69K SEP-IRA contribution.",
+    "matchReasons": [
+      "Accredited investor",
+      "Self-employed — SEP-IRA eligible",
+      "Referral from existing client (Robert Chen)",
+      "Consolidating accounts — active evaluation"
+    ],
+    "whyNowReasons": [
+      "SEP-IRA contribution deadline is tax filing date (Apr 2025)",
+      "Looking to consolidate accounts — active evaluation mode",
+      "Referral relationship creates warm introduction opportunity"
+    ],
+    "potentialConcerns": [
+      "Lower AUM relative to other prospects",
+      "Account consolidation may mean existing advisor"
+    ],
+    "outreachAngle": "Warm introduction angle via Robert Chen. Lead with SEP-IRA opportunity and account consolidation simplification."
+  },
+  {
+    "id": "p4",
+    "name": "Jennifer Park",
+    "currentRole": "Chief of Surgery",
+    "company": "Park Medical Group",
+    "location": "Houston, TX",
+    "linkedinUrl": "https://linkedin.com/in/jenniferpark",
+    "email": "jpark@parkmedical.org",
+    "icpScore": 79,
+    "urgencyScore": 61,
+    "icpCategory": "Medical Professional",
+    "summary": "Chief of Surgery with $750K income and $2.4M AUM. Estate planning opportunity via annual gift tax exclusion before year-end.",
+    "matchReasons": [
+      "High income ($750K)",
+      "Accredited investor in TX",
+      "Medical professional — wealth accumulation profile",
+      "No existing advisor relationship"
+    ],
+    "whyNowReasons": [
+      "Annual gift tax exclusion ($18K/recipient) expires Dec 31",
+      "Recently identified — early in outreach window",
+      "TX residency — focus on federal strategies"
+    ],
+    "potentialConcerns": [
+      "No explicit consent — CSV import source",
+      "No prior relationship",
+      "Busy schedule as Chief of Surgery"
+    ],
+    "outreachAngle": "Lead with year-end estate planning and gift tax exclusion. Keep brief. Emphasize TX-specific strategies with no state income tax."
+  },
+  {
+    "id": "p5",
+    "name": "David Kowalski",
+    "currentRole": "CEO",
+    "company": "Blue Ridge Manufacturing",
+    "location": "Pittsburgh, PA",
+    "linkedinUrl": "https://linkedin.com/in/davidkowalski",
+    "email": "d.kowalski@blueridge.com",
+    "icpScore": 95,
+    "urgencyScore": 45,
+    "icpCategory": "Manufacturing CEO / Existing Client",
+    "summary": "Converted client managing $4.2M AUM. Q1 annual review due — opportunity to deepen relationship and expand wallet share.",
+    "matchReasons": [
+      "Existing client — highest conversion certainty",
+      "CEO-level with $6.1M total AUM",
+      "Long-term relationship established",
+      "High confidence enrichment (95%)"
+    ],
+    "whyNowReasons": [
+      "Q1 2025 annual review meeting due",
+      "Market rebalancing discussion needed after 2024 movements",
+      "Referral opportunity — satisfied long-term client"
+    ],
+    "potentialConcerns": [
+      "Lower urgency — already a client",
+      "Q1 review is standard — not crisis-driven"
+    ],
+    "outreachAngle": "Schedule Q1 annual review. Lead with 2024 portfolio performance and 2025 planning themes. Discuss referrals from business network."
+  }
+]

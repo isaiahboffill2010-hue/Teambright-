@@ -56,7 +56,7 @@ export default function SubmitCompliancePage() {
         <p className="text-slate-500 mb-2">Your submission has been sent to your compliance officer.</p>
         <p className="text-xs font-mono text-slate-400 mb-6">Tracking ID: {submissionId}</p>
         <p className="text-xs text-slate-400 mb-8 max-w-xs">
-          You'll be notified once your compliance officer has reviewed and approved or rejected the submission. Review typically takes 1–2 business days.
+          You&apos;ll be notified once your compliance officer has reviewed and approved or rejected the submission. Review typically takes 1&ndash;2 business days.
         </p>
         <div className="flex gap-3">
           <Link href="/compliance"><Button variant="secondary">View Submissions</Button></Link>

@@ -1,28 +1,27 @@
+import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
 
 export async function POST(request: NextRequest) {
   try {
-    const { prospectId, email } = await request.json();
+    const { prospectId } = await request.json();
 
     if (!prospectId) {
       return NextResponse.json({ error: 'prospectId required' }, { status: 400 });
     }
 
-    // In production, integrate with Clay API:
-    // const clay = new ClayClient(process.env.CLAY_API_KEY);
-    // const data = await clay.enrich({ email });
+    const { data, error } = await supabase
+      .from('prospects')
+      .select('*')
+      .eq('id', prospectId)
+      .single();
 
-    // Simulate enrichment response
-    await new Promise((r) => setTimeout(r, 800));
+    if (error) {
+      return NextResponse.json({ error: `Failed to fetch prospect: ${error.message}` }, { status: 500 });
+    }
 
-    return NextResponse.json({
-      prospectId,
-      enrichment: {
-        enrichedAt: new Date().toISOString(),
-        confidenceScore: 0.78 + Math.random() * 0.15,
-        source: 'clay',
-      },
-    });
+    return NextResponse.json({ prospect: data });
   } catch {
     return NextResponse.json({ error: 'Enrichment failed' }, { status: 500 });
   }

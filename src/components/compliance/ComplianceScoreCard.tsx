@@ -41,10 +41,8 @@ export function ComplianceScoreCard({ score, compact }: Props) {
   const { opinion, riskLevel, projectedProbability, triggeredRules } = score;
 
   const gaugePercent = projectedProbability * 100;
-  // SVG arc gauge
-  const r = 36;
-  const circ = Math.PI * r; // half-circle
-  const dash = (gaugePercent / 100) * circ;
+  // SVG arc gauge — path radius is 40, circumference of half-circle = π * 40 ≈ 125.6
+  const arcCircumference = Math.PI * 40;
 
   return (
     <Card className={clsx('border', riskBg[riskLevel])}>
@@ -73,7 +71,7 @@ export function ComplianceScoreCard({ score, compact }: Props) {
               className={riskColors[riskLevel]}
               strokeWidth="8"
               strokeLinecap="round"
-              strokeDasharray={`${(gaugePercent / 100) * 125.6} 125.6`}
+              strokeDasharray={`${(gaugePercent / 100) * arcCircumference} ${arcCircumference}`}
             />
             <text x="50" y="52" textAnchor="middle" className="text-slate-800" fontSize="14" fontWeight="bold" fill="currentColor">
               {Math.round(gaugePercent)}%

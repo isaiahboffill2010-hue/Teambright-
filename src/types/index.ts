@@ -24,6 +24,7 @@ export type ProspectStatus =
 
 export interface EnrichmentData {
   linkedinUrl?: string;
+  location?: string;
   companyName?: string;
   jobTitle?: string;
   estimatedAUM?: number;
@@ -41,6 +42,17 @@ export interface TaxProfile {
   taxablePortfolioSize?: number;
 }
 
+export interface ProspectScoring {
+  icpScore: number;           // 0–100 ICP match score
+  urgencyScore: number;       // 0–100 urgency / "why now" score
+  icpCategory: string;        // e.g. "Tech Executive", "Medical Professional"
+  summary: string;            // 1-2 sentence overview
+  matchReasons: string[];     // why they match ICP
+  whyNowReasons: string[];    // life events / signals
+  potentialConcerns: string[];
+  outreachAngle: string;      // recommended personalized angle
+}
+
 export interface Prospect {
   id: string;
   advisorId: string;
@@ -52,6 +64,7 @@ export interface Prospect {
   source: 'manual' | 'csv_import' | 'clay_enrichment' | 'referral';
   enrichment?: EnrichmentData;
   taxProfile?: TaxProfile;
+  scoring?: ProspectScoring;
   tags: string[];
   notes: string;
   lastContactedAt?: string;

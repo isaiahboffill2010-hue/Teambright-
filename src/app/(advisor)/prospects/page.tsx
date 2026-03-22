@@ -7,14 +7,121 @@ import { StatusBadge, Badge } from '@/components/ui/Badge';
 import { Prospect } from '@/types';
 import Link from 'next/link';
 
+interface AddProspectForm {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  notes: string;
+}
+
+function AddProspectModal({ onClose, onSaved }: { onClose: () => void; onSaved: (p: Prospect) => void }) {
+  const [form, setForm] = useState<AddProspectForm>({ firstName: '', lastName: '', email: '', phone: '', notes: '' });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const set = (field: keyof AddProspectForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm((f) => ({ ...f, [field]: e.target.value }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSaving(true);
+    try {
+      const res = await fetch('/api/prospects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const json = await res.json();
+      if (!res.ok) { setError(json.error ?? 'Failed to save'); return; }
+      onSaved(json.prospect);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-lg font-bold text-slate-900">Add Prospect</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-xl leading-none">✕</button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">First Name *</label>
+              <input required value={form.firstName} onChange={set('firstName')}
+                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Jane" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Last Name *</label>
+              <input required value={form.lastName} onChange={set('lastName')}
+                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Smith" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Email *</label>
+            <input required type="email" value={form.email} onChange={set('email')}
+              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="jane@example.com" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Phone</label>
+            <input type="tel" value={form.phone} onChange={set('phone')}
+              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="+1 (555) 000-0000" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Notes</label>
+            <textarea value={form.notes} onChange={set('notes')} rows={3}
+              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              placeholder="Any context about this prospect..." />
+          </div>
+          {error && <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+          <div className="flex gap-2 pt-1">
+            <Button type="button" variant="secondary" className="flex-1" onClick={onClose}>Cancel</Button>
+            <Button type="submit" className="flex-1" loading={saving}>Save Prospect</Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function ScorePill({ score, type }: { score: number; type: 'urgency' | 'icp' }) {
+  const color =
+    type === 'urgency'
+      ? score >= 85
+        ? 'bg-red-100 text-red-700'
+        : score >= 70
+        ? 'bg-amber-100 text-amber-700'
+        : 'bg-green-100 text-green-700'
+      : score >= 85
+      ? 'bg-indigo-100 text-indigo-700'
+      : score >= 70
+      ? 'bg-blue-100 text-blue-600'
+      : 'bg-slate-100 text-slate-500';
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${color}`}>
+      {score}
+    </span>
+  );
+}
+
 function ProspectDrawer({ prospect, onClose }: { prospect: Prospect; onClose: () => void }) {
   const taxP = prospect.taxProfile;
   const enrich = prospect.enrichment;
+  const scoring = prospect.scoring;
 
   return (
     <div className="fixed inset-0 z-50 flex">
       <div className="flex-1 bg-black/30" onClick={onClose} />
-      <div className="w-96 bg-white shadow-xl overflow-y-auto">
+      <div className="w-[420px] bg-white shadow-xl overflow-y-auto">
         {/* Header */}
         <div className="bg-slate-900 px-5 py-5">
           <div className="flex items-start justify-between">
@@ -25,24 +132,86 @@ function ProspectDrawer({ prospect, onClose }: { prospect: Prospect; onClose: ()
               <div>
                 <h2 className="text-white font-semibold">{prospect.firstName} {prospect.lastName}</h2>
                 <p className="text-slate-400 text-xs">{enrich?.jobTitle} · {enrich?.companyName}</p>
+                {scoring && (
+                  <p className="text-slate-300 text-xs mt-0.5">{scoring.icpCategory}</p>
+                )}
               </div>
             </div>
             <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
           </div>
-          <div className="flex gap-2 mt-3">
+          <div className="flex gap-2 mt-3 flex-wrap">
             <StatusBadge status={prospect.status} />
             {prospect.hasExplicitConsent && <Badge variant="success" size="sm">Consent ✓</Badge>}
             {prospect.hasOptedOut && <Badge variant="danger" size="sm">Opted Out</Badge>}
+            {scoring && (
+              <>
+                <Badge variant="info" size="sm">ICP {scoring.icpScore}</Badge>
+                <Badge
+                  variant={scoring.urgencyScore >= 85 ? 'danger' : scoring.urgencyScore >= 70 ? 'warning' : 'success'}
+                  size="sm"
+                >
+                  Urgency {scoring.urgencyScore}
+                </Badge>
+              </>
+            )}
           </div>
         </div>
 
         <div className="p-5 space-y-5">
+          {/* Why Now Signals */}
+          {scoring && scoring.whyNowReasons.length > 0 && (
+            <div>
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">⚡ Why Now Signals</h3>
+              <div className="space-y-1.5">
+                {scoring.whyNowReasons.map((reason, i) => (
+                  <div key={i} className="flex items-start gap-2 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                    <span className="shrink-0 mt-0.5">•</span>
+                    <span>{reason}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Recommended Outreach Angle */}
+          {scoring?.outreachAngle && (
+            <div>
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Recommended Outreach Angle</h3>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5 text-xs text-blue-800 leading-relaxed">
+                {scoring.outreachAngle}
+              </div>
+            </div>
+          )}
+
+          {/* Summary */}
+          {scoring?.summary && (
+            <div>
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Summary</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">{scoring.summary}</p>
+            </div>
+          )}
+
+          {/* Match Reasons */}
+          {scoring && scoring.matchReasons.length > 0 && (
+            <div>
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">ICP Match Reasons</h3>
+              <div className="flex flex-wrap gap-1.5">
+                {scoring.matchReasons.map((r, i) => (
+                  <span key={i} className="text-xs px-2 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg">
+                    {r}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Contact */}
           <div>
             <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Contact</h3>
             <div className="space-y-1.5 text-sm text-slate-700">
               <p>✉ {prospect.email}</p>
               {prospect.phone && <p>📞 {prospect.phone}</p>}
+              {enrich?.location && <p>📍 {enrich.location}</p>}
             </div>
           </div>
 
@@ -68,12 +237,6 @@ function ProspectDrawer({ prospect, onClose }: { prospect: Prospect; onClose: ()
                   <span className="text-slate-500">State</span>
                   <span className="text-slate-700">{enrich.stateOfResidence}</span>
                 </div>
-                {enrich.linkedinUrl && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">LinkedIn</span>
-                    <span className="text-blue-600 text-xs truncate max-w-32">View Profile</span>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -112,6 +275,20 @@ function ProspectDrawer({ prospect, onClose }: { prospect: Prospect; onClose: ()
             </div>
           )}
 
+          {/* Potential Concerns */}
+          {scoring && scoring.potentialConcerns.length > 0 && (
+            <div>
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Potential Concerns</h3>
+              <div className="space-y-1">
+                {scoring.potentialConcerns.map((c, i) => (
+                  <p key={i} className="text-xs text-slate-500 flex items-start gap-1.5">
+                    <span className="text-slate-300 mt-0.5">•</span> {c}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Notes */}
           {prospect.notes && (
             <div>
@@ -135,7 +312,7 @@ function ProspectDrawer({ prospect, onClose }: { prospect: Prospect; onClose: ()
           {/* Actions */}
           <div className="flex gap-2 pt-2">
             <Link href="/outreach/compose" className="flex-1">
-              <Button variant="primary" size="sm" className="w-full">Send Email</Button>
+              <Button variant="primary" size="sm" className="w-full">Draft Outreach →</Button>
             </Link>
             <Link href="/tax-planning">
               <Button variant="secondary" size="sm">Tax Opps</Button>
@@ -148,21 +325,27 @@ function ProspectDrawer({ prospect, onClose }: { prospect: Prospect; onClose: ()
 }
 
 export default function ProspectsPage() {
-  const { filteredProspects, filters, setFilters } = useProspectStore();
+  const { filteredProspects, filters, setFilters, addProspect } = useProspectStore();
   const [activeProspect, setActiveProspect] = useState<Prospect | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
 
-  const prospects = filteredProspects();
+  // Sort by urgency score descending, then by AUM
+  const prospects = [...filteredProspects()].sort((a, b) => {
+    const urgencyDiff = (b.scoring?.urgencyScore ?? 0) - (a.scoring?.urgencyScore ?? 0);
+    if (urgencyDiff !== 0) return urgencyDiff;
+    return (b.enrichment?.estimatedAUM ?? 0) - (a.enrichment?.estimatedAUM ?? 0);
+  });
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Prospects</h1>
-          <p className="text-slate-500 text-sm mt-1">{prospects.length} contacts in your pipeline</p>
+          <p className="text-slate-500 text-sm mt-1">{prospects.length} contacts · sorted by urgency score</p>
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" size="sm">Import CSV</Button>
-          <Button size="sm">+ Add Prospect</Button>
+          <Button size="sm" onClick={() => setShowAddModal(true)}>+ Add Prospect</Button>
         </div>
       </div>
 
@@ -198,10 +381,11 @@ export default function ProspectsPage() {
               <th className="text-left px-5 py-3 text-xs font-medium text-slate-500">Name</th>
               <th className="text-left px-5 py-3 text-xs font-medium text-slate-500">Company</th>
               <th className="text-left px-5 py-3 text-xs font-medium text-slate-500">Est. AUM</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Urgency</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">ICP</th>
               <th className="text-left px-5 py-3 text-xs font-medium text-slate-500">Status</th>
               <th className="text-left px-5 py-3 text-xs font-medium text-slate-500">Consent</th>
               <th className="text-left px-5 py-3 text-xs font-medium text-slate-500">Tax Exposure</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-slate-500">Source</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
@@ -231,6 +415,12 @@ export default function ProspectsPage() {
                     ? `$${(p.enrichment.estimatedAUM / 1_000_000).toFixed(1)}M`
                     : '—'}
                 </td>
+                <td className="px-4 py-3.5">
+                  {p.scoring ? <ScorePill score={p.scoring.urgencyScore} type="urgency" /> : <span className="text-slate-300">—</span>}
+                </td>
+                <td className="px-4 py-3.5">
+                  {p.scoring ? <ScorePill score={p.scoring.icpScore} type="icp" /> : <span className="text-slate-300">—</span>}
+                </td>
                 <td className="px-5 py-3.5"><StatusBadge status={p.status} /></td>
                 <td className="px-5 py-3.5">
                   {p.hasOptedOut ? (
@@ -251,7 +441,6 @@ export default function ProspectsPage() {
                     </Badge>
                   ) : '—'}
                 </td>
-                <td className="px-5 py-3.5 text-slate-400 text-xs capitalize">{p.source.replace('_', ' ')}</td>
               </tr>
             ))}
           </tbody>
@@ -263,6 +452,12 @@ export default function ProspectsPage() {
 
       {activeProspect && (
         <ProspectDrawer prospect={activeProspect} onClose={() => setActiveProspect(null)} />
+      )}
+      {showAddModal && (
+        <AddProspectModal
+          onClose={() => setShowAddModal(false)}
+          onSaved={(p) => { addProspect(p); setShowAddModal(false); }}
+        />
       )}
     </div>
   );

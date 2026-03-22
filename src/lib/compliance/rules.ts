@@ -85,7 +85,7 @@ export function rule2210_fairBalance(content: string): RuleEvaluation {
     regulation: 'FINRA Rule 2210',
     severity,
     opinion,
-    triggered: hasProhibited || hasPuffery,
+    triggered: hasProhibited || hasPuffery || (wordCount > 400 && !hasDisclosure),
     detail,
   };
 }
