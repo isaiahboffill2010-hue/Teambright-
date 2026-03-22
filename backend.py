@@ -64,11 +64,12 @@ _template_data: List[Dict] = []
 _gemini_data: List[Dict] = []
 _active_data: List[Dict] = []  # whichever is best available
 _data_source: str = "none"
+_template_corrections: Dict[str, Dict] = {}  # name -> template correction data
 
 
 def _load_data():
     """Load best available batch data at startup."""
-    global _template_data, _gemini_data, _active_data, _data_source
+    global _template_data, _gemini_data, _active_data, _data_source, _template_corrections
 
     gemini_path = OUTPUT_DIR / "batch_gemini.json"
     template_path = OUTPUT_DIR / "batch_template.json"
@@ -103,6 +104,26 @@ def _load_data():
     else:
         logger.warning("No batch data found in %s", OUTPUT_DIR)
         _data_source = "none"
+
+    # Always try to load template data for corrections (separate from active data)
+    _template_corrections = {}
+    tmpl_sources = [template_path] + sorted(OUTPUT_DIR.glob("batch_template_test_*.json"), key=lambda f: f.stat().st_size, reverse=True)
+    for tmpl_path in tmpl_sources:
+        if tmpl_path.exists():
+            try:
+                tmpl_data = json.loads(tmpl_path.read_text(encoding="utf-8"))
+                for item in tmpl_data:
+                    name = item.get("prospect", {}).get("name", "")
+                    if name and item.get("correction"):
+                        _template_corrections[name] = {
+                            "template_message": item.get("template_message", ""),
+                            "correction": item.get("correction", {}),
+                            "compliance_level": item.get("compliance_level", "UNKNOWN"),
+                        }
+                logger.info("Loaded %d template corrections from %s", len(_template_corrections), tmpl_path.name)
+                break  # use the first one found
+            except Exception as e:
+                logger.error("Failed to load template corrections from %s: %s", tmpl_path, e)
 
 
 @app.on_event("startup")
@@ -179,8 +200,17 @@ async def get_stats():
         cl = r.get("compliance_level", "UNKNOWN")
         compliance_dist[cl] = compliance_dist.get(cl, 0) + 1
 
-        # Corrected distribution
-        ccl = r.get("corrected_compliance_level")
+        # Corrected distribution — use template corrections (which show real fixes)
+        pname = r.get("prospect", {}).get("name", "")
+        tmpl_corr = _template_corrections.get(pname, {})
+        tmpl_corr_data = tmpl_corr.get("correction", {})
+        if tmpl_corr_data and tmpl_corr_data.get("corrections_applied"):
+            # Get compliance level from the corrected audit
+            corr_audit = tmpl_corr_data.get("corrected_audit", {})
+            corr_overall = corr_audit.get("overall", {}) if corr_audit else {}
+            ccl = corr_overall.get("compliance_level", tmpl_corr.get("compliance_level", "UNKNOWN"))
+        else:
+            ccl = r.get("corrected_compliance_level") or r.get("compliance_level")
         if ccl:
             corrected_dist[ccl] = corrected_dist.get(ccl, 0) + 1
 
@@ -307,7 +337,11 @@ async def get_prospect_detail(
             "data": combos[combo],
         }
 
-    # Return full prospect data
+    # Inject template correction if available
+    name = result.get("prospect", {}).get("name", "")
+    if name in _template_corrections:
+        result = {**result, "template_correction": _template_corrections[name]}
+
     return result
 
 
