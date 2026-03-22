@@ -39,8 +39,8 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════
 
 app = FastAPI(
-    title="The Compliant Prospector API",
-    description="Compliance algebra-powered prospecting engine for financial advisors",
+    title="ClearPath API",
+    description="ClearPath — Compliance algebra-powered prospecting engine for financial advisors",
     version="1.0.0",
 )
 
