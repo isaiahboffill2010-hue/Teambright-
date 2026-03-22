@@ -73,9 +73,9 @@ def _load_data():
     gemini_path = OUTPUT_DIR / "batch_gemini.json"
     template_path = OUTPUT_DIR / "batch_template.json"
 
-    # Also check for test files (hackathon dev)
-    gemini_test_files = sorted(OUTPUT_DIR.glob("batch_gemini_test_*.json"), reverse=True)
-    template_test_files = sorted(OUTPUT_DIR.glob("batch_template_test_*.json"), reverse=True)
+    # Also check for test files (hackathon dev) — sort by size, largest first
+    gemini_test_files = sorted(OUTPUT_DIR.glob("batch_gemini_test_*.json"), key=lambda f: f.stat().st_size, reverse=True)
+    template_test_files = sorted(OUTPUT_DIR.glob("batch_template_test_*.json"), key=lambda f: f.stat().st_size, reverse=True)
 
     # Priority: production gemini > test gemini > production template > test template
     if gemini_path.exists():
