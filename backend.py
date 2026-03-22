@@ -374,6 +374,16 @@ async def live_check(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/finra-status")
+async def finra_status():
+    """Check FINRA API connectivity — shows OAuth2 auth is live."""
+    try:
+        from compliance_engine.finra_api import check_api_status
+        return check_api_status()
+    except Exception as e:
+        return {"credentials_found": False, "auth_success": False, "error": str(e)}
+
+
 @app.post("/api/reload")
 async def reload_data():
     """Reload batch data from disk (after a new batch run)."""
