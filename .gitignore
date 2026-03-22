@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+.hypothesis/
+.pytest_cache/
+node_modules/
+.next/
+sample_output/
