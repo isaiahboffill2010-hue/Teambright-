@@ -5,4 +5,7 @@ __pycache__/
 .pytest_cache/
 node_modules/
 .next/
-sample_output/
+# Large batch files (>100MB) — too big for GitHub
+sample_output/batch_template.json
+sample_output/sample_audits.json
+sample_output/gemini_cache/
